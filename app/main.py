@@ -6,7 +6,8 @@ import daiquiri
 import sys
 
 # Import schemas
-from endpoints import app, 
+from endpoints import app
+from dataclass import SimulationData
 
 # Set up daiquiri
 daiquiri.setup(level=logging.INFO)
@@ -21,9 +22,3 @@ daiquiri.setup(level=logging.INFO, outputs=(
     ))
 # Emit
 logger.info("Started simulation API ...")
-
-# Take requests
-logger.info("Finished setting up the retina. Ready to accept requests ...")
-
-
-

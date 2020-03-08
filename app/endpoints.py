@@ -21,27 +21,28 @@ def get_parameters(records: Parameter_req):
     # ...
 
 # POST request for simulation results
+@app.post('/results')
+def save_results(records: Simulation_res):
+    """
+    Take simulation results and save to disk
+    """
+    # Get results
+    res = {
+        "container_uid": records.uid,
+        "scenario_uid": records.scenario_uid,
+        "emiss_mu_bar": records.emiss_mu_bar,
+        "gamma_int_bar": records.gamma_int_bar,
+        "emiss_var_bar": records.emiss_var_bar,
+        "emiss_varmu_bar": records.emiss_varmu_bar
+    }
+    # Save results
+    out_file = os.path.join("/var/results", records.iteration_uid + ".json")
+    # ...
+    # Update status
+    # ...
 
-@app.post('/fingerprint')
-def fingerprint_articles(records: Records):
-
-    # Retrieve records
-    records_list = records.records
-    records_uids = records.uids
-    retina_name = records.retina_name
-
-    # Checks
-    if len(records_list) != len(records_uids):
-        return({"message":"uids and records of different length"})
-
-    # Make id + record in dict
-    records_dict = {uid:rec for uid, rec in zip(records_uids, records_list)}
-
-    # Get fingerprint for each text
-    records_fingerprinted = FP(records_dict, retina_name)
-
-    # Return
-    return(records_fingerprinted)
+    # Return termination message
+    return({"message":"terminate"})
 
 @app.get("/retinas")
 def get_retinas():
