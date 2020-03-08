@@ -4,9 +4,23 @@
 
 # Import modules
 from fastapi import FastAPI
-from schemas import Records
+from schemas import Parameter_req, Simulation_res
 # Create the api
 app = FastAPI()
+
+# GET request for parameters
+@app.get("/parameters")
+def get_parameters(records: Parameter_req):
+    # Get the id of the container that is simulating this iteration
+    cont_id = records.uid
+    # Store ID
+    # ...
+    # Get a set of parameters
+    # ...
+    # Return
+    # ...
+
+# POST request for simulation results
 
 @app.post('/fingerprint')
 def fingerprint_articles(records: Records):

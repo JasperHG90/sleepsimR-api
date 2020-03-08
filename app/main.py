@@ -6,7 +6,7 @@ import daiquiri
 import sys
 
 # Import schemas
-from schemas import input_get
+from endpoints import app, 
 
 # Set up daiquiri
 daiquiri.setup(level=logging.INFO)
