@@ -1,1 +1,4 @@
 sleepsimR-api.code-workspace
+app/dev.py
+.vscode
+*.pyc
