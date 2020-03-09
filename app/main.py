@@ -1,46 +1,65 @@
 # Small FastAPI application that handles parsing
 
 # Logging
-import logging
-import daiquiri
 import sys
 import os
+import json
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
 
 # Import schemas
 from dataclass import SimulationData
 
+# Folder used to store data
+FOLDER_OUT = "/var/sleepsimR"
+RESULTS_OUT = os.path.join(FOLDER_OUT, "results")
+# If not "results", then create
+if "results" not in os.listdir(FOLDER_OUT):
+    os.mkdir(RESULTS_OUT)
+
 # If simulation data exists, load. Else start new
-if "allocations.json" in os.listdir():
-    sd = SimulationData.from_file()
+if "allocations.json" in os.listdir(FOLDER_OUT):
+    sd = SimulationData.from_file(FOLDER_OUT)
 else:
-    sd = SimulationData()
+    sd = SimulationData(FOLDER_OUT)
 
-# Set up daiquiri
-daiquiri.setup(level=logging.INFO)
-logger = daiquiri.getLogger(__name__)
+###########
+# Schemas #
+###########
 
-# Log both to stdout and as JSON in a file called /dev/null. (Requires
-# `python-json-logger`)
-daiquiri.setup(level=logging.INFO, outputs=(
-    daiquiri.output.Stream(sys.stdout),
-    daiquiri.output.File("sleepsimR_log.json",
-                         formatter=daiquiri.formatter.JSON_FORMATTER),
-    ))
-# Emit
-logger.info("Started simulation API ...")
+# Incoming request for simulation parameters
+# The docker container sends its unique id
+class Parameter_req(BaseModel):
+    uid: str 
+
+# POST request with simulation results
+class Simulation_res(BaseModel):
+    uid: str 
+    scenario_uid: str
+    iteration_uid: str 
+    emiss_mu_bar: List
+    gamma_int_bar: List
+    emiss_var_bar: List
+    emiss_varmu_bar: List
+    credible_intervals: List
 
 #################
 # API endpoints #
 #################
 
-# Import modules
-from fastapi import FastAPI
-from schemas import Parameter_req, Simulation_res
 # Create the api
 app = FastAPI()
 
-# GET request for parameters
-@app.get("/parameters")
+# GET request for number of processes currently running
+@app.get("/info")
+def return_info():
+    # Get information from object
+    inf = sd.info()
+    return inf
+
+# POST request for parameters
+@app.post("/parameters")
 def get_parameters(records: Parameter_req):
     # Get the id of the container that is simulating this iteration
     cont_id = records.uid
@@ -66,10 +85,10 @@ def save_results(records: Simulation_res):
         "credible_intervals": records.credible_intervals
     }
     # Save results
-    out_file = os.path.join("/var/results", records.iteration_uid + ".json")
-    # ...
+    out_file = os.path.join(RESULTS_OUT, records.iteration_uid + ".json")
+    with open(out_file, "w") as outFile:
+        json.dump(res, outFile)
     # Update status
     sd.update_status(records.uid, status = "completed")
-
     # Return termination message
-    return({"message":"terminate"})
+    return {"message":"terminate"}

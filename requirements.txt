@@ -1,3 +1,4 @@
-pandas
-typing
-FastAPI
+numpy>=1.16
+scipy==1.2.0
+spacy==2.1.0
+pandas==0.24.1

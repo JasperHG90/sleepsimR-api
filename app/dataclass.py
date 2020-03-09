@@ -1,10 +1,12 @@
 # This class manages the simulation scenarios and their iterations
 import json
 import pandas as pd
+import os
 
 class SimulationData:
 
-    def __init__(self):
+    def __init__(self, path):
+        self.path = path
         # Load CSV with scenarios
         self.scen = pd.read_csv("data/scenarios.csv.gz")
         self.scen["allocated"] = False
@@ -17,9 +19,12 @@ class SimulationData:
         """
         Allocate a container to a set of simulation parameters
         """
+        # Check if already allocated
+        if self.allocations.get(container_id) is not None:
+            return self.scen[self.scen["iteration_id"] == self.allocations[container_id]["iteration_id"]].to_dict(orient="list")
         params = self.scen[self.scen.allocated == False].sample(n=1)
         # Set allocation to true
-        self.scen.loc[self.scen["scen.iteration_id"] == params.iteration_id.values[0], "allocated"] = True
+        self.scen.loc[self.scen["iteration_id"] == params.iteration_id.values[0], "allocated"] = True
         # Save in allocations
         self.allocations[container_id] = {"iteration_id": params.iteration_id.values[0],
                                           "status": "working"}
@@ -34,11 +39,19 @@ class SimulationData:
         par_return["start_emiss"] = json.loads(par_return["start_emiss"][0])
         return par_return
 
+    def info(self):
+        """
+        Return the number of processes allocated and finished
+        """
+        alloc = len(self.allocations)
+        finish = sum([True if rec["status"] == "completed" else False for rec in self.allocations.values()])
+        return {"allocated": alloc, "finished": finish}
+
     def save_allocations(self):
         """
         Save the current overview of allocations to disk
         """
-        with open("allocations.json", "w") as outFile:
+        with open(os.path.join(self.path, "allocations.json"), "w") as outFile:
             json.dump({"allocations": self.allocations,
                        "allocations_inv": self.allocations_inv},
                        outFile,
@@ -48,7 +61,7 @@ class SimulationData:
         """
         Load the allocation from disk
         """
-        with open("allocations.json", "r") as inFile:
+        with open(os.path.join(self.path, "allocations.json"), "r") as inFile:
             all_ok = json.load(inFile)
             self.allocations = all_ok["allocations"]
             self.allocations_inv = all_ok["allocations_inv"]
@@ -71,12 +84,12 @@ class SimulationData:
         self.save_allocations()
 
     @classmethod
-    def from_file(cls):
+    def from_file(cls, path):
         """
         Load an allocation from file
         """
         # Set up the class
-        cls_init = cls()
+        cls_init = cls(path)
         # Load allocations
         cls_init.load_allocations()
         # Check which allocations are still open
