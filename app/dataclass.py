@@ -10,7 +10,7 @@ class SimulationData:
         # Load CSV with scenarios
         self.scen = pd.read_csv("data/scenarios.csv.gz")
         self.scen["allocated"] = False
-        self.scen.astype("bool")
+        self.scen.allocated.astype("bool")
         # Set up dict for allocations
         self.allocations = {}
         self.allocations_inv = {}
