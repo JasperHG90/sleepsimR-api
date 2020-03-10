@@ -11,6 +11,14 @@ from pydantic import BaseModel
 from typing import List
 import secrets
 
+# Get env variables
+usr = os.environ("SLEEPSIMR_USER")
+pwd = os.environ("SLEEPSIMR_PWD")
+
+# Assert not empty
+assert usr != "", "User not set in environment file"
+assert pwd != "", "Password not set in environment file"
+
 # Import schemas
 from dataclass import SimulationData
 
@@ -54,8 +62,8 @@ security = HTTPBasic()
 
 # Auth function
 def auth_container(credentials: HTTPBasicCredentials = Depends(security)):
-    correct_username = secrets.compare_digest(credentials.username, "sleepsimR_container")
-    correct_password = secrets.compare_digest(credentials.password, "superflexickadosuish")
+    correct_username = secrets.compare_digest(credentials.username, usr)
+    correct_password = secrets.compare_digest(credentials.password, pwd)
     if not (correct_username and correct_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -72,10 +80,17 @@ def return_info(username: str = Depends(auth_container)):
     return inf
 
 # POST request for parameters
-@app.post("/parameters")
-def get_parameters(uid: str = Header(None), api_key: str = Header(None)):
+@app.get("/parameters")
+def get_parameters(uid: str = Header(None), username: str = Depends(auth_container)):
     # Get the id of the container that is simulating this iteration
     cont_id = uid
+    # If None, then error out
+    if uid is None:
+        raise HTTPException(
+            status_code = 401,
+            detail="ID not supplied",
+            headers={"missing": "id"}
+        )
     # Get a set of parameters
     out = sd.allocate(cont_id)
     # Return
@@ -83,7 +98,7 @@ def get_parameters(uid: str = Header(None), api_key: str = Header(None)):
 
 # POST request for simulation results
 @app.post('/results')
-def save_results(records: Simulation_res, uid: str = Header(None)):
+def save_results(records: Simulation_res, username: str = Depends(auth_container)):
     """
     Take simulation results and save to disk
     """
