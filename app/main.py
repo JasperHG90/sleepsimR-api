@@ -8,12 +8,18 @@ from fastapi import Depends, FastAPI, HTTPException, Header
 from starlette import status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
-from typing import List
+from typing import List, Union
 import secrets
 
 # Get env variables
-usr = os.environ("SLEEPSIMR_USER")
-pwd = os.environ("SLEEPSIMR_PWD")
+try:
+    usr = os.environ["SLEEPSIMR_USER"]
+except KeyError:
+    raise KeyError("'SLEEPSIMR_USER' username must be passed to the docker container as an environment variable")
+try:
+    pwd = os.environ["SLEEPSIMR_PWD"]
+except KeyError:
+    raise KeyError("'SLEEPSIMR_PWD' password must be passed to the docker container as an environment variable")
 
 # Assert not empty
 assert usr != "", "User not set in environment file"
@@ -55,7 +61,7 @@ class Simulation_res(BaseModel):
 #################
 
 # Create the api
-app = FastAPI()
+app = FastAPI(docs_url=None)
 
 # Security scheme
 security = HTTPBasic()
@@ -87,7 +93,7 @@ def get_parameters(uid: str = Header(None), username: str = Depends(auth_contain
     # If None, then error out
     if uid is None:
         raise HTTPException(
-            status_code = 401,
+            status_code = 400,
             detail="ID not supplied",
             headers={"missing": "id"}
         )
