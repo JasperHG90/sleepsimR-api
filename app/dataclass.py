@@ -21,7 +21,11 @@ class SimulationData:
         """
         # Check if already allocated
         if self.allocations.get(container_id) is not None:
-            return self.scen[self.scen["iteration_id"] == self.allocations[container_id]["iteration_id"]].to_dict(orient="list")
+            par_return = self.scen[self.scen["iteration_id"] == self.allocations[container_id]["iteration_id"]].to_dict(orient="list")
+            # Set json columns to json
+            par_return["start_gamma"] = json.loads(par_return["start_gamma"][0])
+            par_return["start_emiss"] = json.loads(par_return["start_emiss"][0])
+            return par_return
         params = self.scen[self.scen.allocated == False].sample(n=1)
         # Set allocation to true
         self.scen.loc[self.scen["iteration_id"] == params.iteration_id.values[0], "allocated"] = True
