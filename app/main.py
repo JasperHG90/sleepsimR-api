@@ -50,11 +50,11 @@ class Simulation_res(BaseModel):
     uid: str 
     scenario_uid: str
     iteration_uid: str 
-    emiss_mu_bar: List
-    gamma_int_bar: List
-    emiss_var_bar: List
-    emiss_varmu_bar: List
-    credible_intervals: List
+    emiss_mu_bar: List[List[Union(float, int)]]
+    gamma_int_bar: List[Union(float, int)]
+    emiss_var_bar: List[List[Union(float, int)]]
+    emiss_varmu_bar: List[List[Union(float, int)]]
+    credible_intervals: List[List[Union(float, int)]]
 
 #################
 # API endpoints #
