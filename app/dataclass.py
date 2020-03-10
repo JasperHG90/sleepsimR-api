@@ -49,7 +49,7 @@ class SimulationData:
         """
         alloc = len(self.allocations)
         finish = sum([True if rec["status"] == "completed" else False for rec in self.allocations.values()])
-        return {"allocated": alloc, "finished": finish}
+        return {"allocated": alloc - finish, "finished": finish}
 
     def save_allocations(self):
         """
