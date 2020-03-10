@@ -4,9 +4,12 @@
 import sys
 import os
 import json
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException, Header
+from starlette import status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from typing import List
+import secrets
 
 # Import schemas
 from dataclass import SimulationData
@@ -28,11 +31,6 @@ else:
 # Schemas #
 ###########
 
-# Incoming request for simulation parameters
-# The docker container sends its unique id
-class Parameter_req(BaseModel):
-    uid: str 
-
 # POST request with simulation results
 class Simulation_res(BaseModel):
     uid: str 
@@ -51,18 +49,33 @@ class Simulation_res(BaseModel):
 # Create the api
 app = FastAPI()
 
+# Security scheme
+security = HTTPBasic()
+
+# Auth function
+def auth_container(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = secrets.compare_digest(credentials.username, "sleepsimR_container")
+    correct_password = secrets.compare_digest(credentials.password, "superflexickadosuish")
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+            headers={"Auth": "Adv"},
+        )
+    return credentials.username
+
 # GET request for number of processes currently running
 @app.get("/info")
-def return_info():
+def return_info(username: str = Depends(auth_container)):
     # Get information from object
     inf = sd.info()
     return inf
 
 # POST request for parameters
 @app.post("/parameters")
-def get_parameters(records: Parameter_req):
+def get_parameters(uid: str = Header(None), api_key: str = Header(None)):
     # Get the id of the container that is simulating this iteration
-    cont_id = records.uid
+    cont_id = uid
     # Get a set of parameters
     out = sd.allocate(cont_id)
     # Return
@@ -70,7 +83,7 @@ def get_parameters(records: Parameter_req):
 
 # POST request for simulation results
 @app.post('/results')
-def save_results(records: Simulation_res):
+def save_results(records: Simulation_res, uid: str = Header(None)):
     """
     Take simulation results and save to disk
     """
