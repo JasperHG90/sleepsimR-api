@@ -37,8 +37,8 @@ class SimulationData:
             # Return values as dict
             par_return = params.to_dict()
         # Set json columns to json
-        par_return["start_gamma"] = json.loads(par_return["start_gamma"][0])
-        par_return["start_emiss"] = json.loads(par_return["start_emiss"][0])
+        par_return["start_gamma"] = json.loads(par_return["start_gamma"])
+        par_return["start_emiss"] = json.loads(par_return["start_emiss"])
         # Remove first column (index)
         del par_return["Unnamed: 0"]
         # Return
