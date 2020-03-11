@@ -53,8 +53,22 @@ class SimulationData:
         """
         alloc = len(self.allocations)
         finish = sum([True if rec["status"] == "completed" else False for rec in self.allocations.values()])
-        completed_past_day = sum([True if (datetime.datetime.now() - datetime.timedelta(hours=24)) < datetime.datetime.fromtimestamp(rec["ts_finished"]) else False for rec in self.allocations.values()])
+        # Compute number of records completed in past day
+        timediff = (datetime.datetime.now() - datetime.timedelta(hours=24))
+        completed_past_day = sum([*map(lambda x: self.completed_last_day(x, timediff), self.allocations.values())])
         return {"allocated": alloc - finish, "finished": finish, "completed_past_day": completed_past_day}
+
+    @staticmethod
+    def completed_last_day(record, timediff):
+        """
+        Evaluates whether or not the input record has been completed in the past 24 hours
+        """
+        if record.get("ts_finished") is None: return False 
+        if timediff < datetime.datetime.fromtimestamp(record["ts_finished"]):
+            return True
+        else:
+            return False
+
 
     def save_allocations(self):
         """
