@@ -22,25 +22,26 @@ class SimulationData:
         # Check if already allocated
         if self.allocations.get(container_id) is not None:
             par_return = self.scen[self.scen["iteration_id"] == self.allocations[container_id]["iteration_id"]].to_dict(orient="list")
-            # Set json columns to json
-            par_return["start_gamma"] = json.loads(par_return["start_gamma"][0])
-            par_return["start_emiss"] = json.loads(par_return["start_emiss"][0])
-            return par_return
-        params = self.scen[self.scen.allocated == False].sample(n=1)
-        # Set allocation to true
-        self.scen.loc[self.scen["iteration_id"] == params.iteration_id.values[0], "allocated"] = True
-        # Save in allocations
-        self.allocations[container_id] = {"iteration_id": params.iteration_id.values[0],
-                                          "status": "working"}
-        # Save in inverse mapping
-        self.allocations_inv[params.iteration_id.values[0]] = container_id
-        # Save allocations to disk
-        self.save_allocations()
-        # Return values as dict
-        par_return = params.to_dict(orient = "list")
+        else:
+            # Get the first row where allocated == False
+            params = self.scen[self.scen.allocated == False].iloc[0]
+            # Set allocation to true
+            self.scen.loc[self.scen["iteration_id"] == params.iteration_id, "allocated"] = True
+            # Save in allocations
+            self.allocations[container_id] = {"iteration_id": params.iteration_id,
+                                              "status": "working"}
+            # Save in inverse mapping
+            self.allocations_inv[params.iteration_id] = container_id
+            # Save allocations to disk
+            self.save_allocations()
+            # Return values as dict
+            par_return = params.to_dict()
         # Set json columns to json
         par_return["start_gamma"] = json.loads(par_return["start_gamma"][0])
         par_return["start_emiss"] = json.loads(par_return["start_emiss"][0])
+        # Remove first column (index)
+        del par_return["Unnamed: 0"]
+        # Return
         return par_return
 
     def info(self):
