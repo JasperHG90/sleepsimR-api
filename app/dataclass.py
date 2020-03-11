@@ -41,6 +41,7 @@ class SimulationData:
         par_return["start_emiss"] = json.loads(par_return["start_emiss"])
         # Remove first column (index)
         del par_return["Unnamed: 0"]
+        del par_return["allocated"]
         # Return
         return par_return
 
