@@ -89,6 +89,7 @@ class SimulationData:
         Update status for a container
         """
         self.allocations[container_id]["status"] = status
+        self.allocations[container_id]["ts_finished"] = datetime.datetime.now().timestamp()
         self.save_allocations()
 
     @classmethod

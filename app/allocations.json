@@ -2,7 +2,8 @@
     "allocations": {
         "abcd": {
             "iteration_id": "0493f34e6dcb7a4ca87d4623531ebd4f",
-            "status": "working"
+            "status": "working",
+            "ts_request": 1583947516.271757
         }
     },
     "allocations_inv": {
