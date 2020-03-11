@@ -53,7 +53,8 @@ class SimulationData:
         """
         alloc = len(self.allocations)
         finish = sum([True if rec["status"] == "completed" else False for rec in self.allocations.values()])
-        return {"allocated": alloc - finish, "finished": finish}
+        completed_past_day = sum([True if (datetime.datetime.now() - datetime.timedelta(hours=24)) < datetime.datetime.fromtimestamp(rec["ts_finished"]) else False for rec in self.allocations.values()])
+        return {"allocated": alloc - finish, "finished": finish, "completed_past_day": completed_past_day}
 
     def save_allocations(self):
         """
