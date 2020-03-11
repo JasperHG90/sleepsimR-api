@@ -14,7 +14,7 @@ class SimulationData:
         self.scen.allocated.astype("bool")
         # Set up dict for allocations
         self.allocations = {}
-        self.allocations_inv = {}
+        self.allocations_inv = {} 
 
     def allocate(self, container_id: str):
         """
