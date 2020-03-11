@@ -67,7 +67,7 @@ class SimulationData:
         # Compute number of records completed in past day
         timediff = (datetime.datetime.now() - datetime.timedelta(hours=24))
         completed_past_day = sum([*map(lambda x: self.completed_last_day(x, timediff), self.allocations.values())])
-        return {"allocated": alloc - finish, "finished": finish, "completed_past_day": completed_past_day}
+        return {"allocated": alloc - finish, "finished": finish, "finished_past_day": completed_past_day}
 
     @staticmethod
     def completed_last_day(record, timediff):
