@@ -2,6 +2,7 @@
 import json
 import pandas as pd
 import os
+import datetime
 
 class SimulationData:
 
@@ -29,7 +30,8 @@ class SimulationData:
             self.scen.loc[self.scen["iteration_id"] == params.iteration_id, "allocated"] = True
             # Save in allocations
             self.allocations[container_id] = {"iteration_id": params.iteration_id,
-                                              "status": "working"}
+                                              "status": "working",
+                                              "ts_request": datetime.datetime.now().timestamp()}
             # Save in inverse mapping
             self.allocations_inv[params.iteration_id] = container_id
             # Save allocations to disk
