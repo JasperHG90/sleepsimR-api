@@ -1,6 +1,7 @@
 # This class manages the simulation scenarios and their iterations
 import json
 import pandas as pd
+import numpy as np
 import os
 import datetime
 
@@ -38,6 +39,15 @@ class SimulationData:
             self.save_allocations()
             # Return values as dict
             par_return = params.to_dict()
+            for k, v in par_return.items():
+                if isinstance(v, np.int64):
+                    par_return[k] = int(v)
+                elif isinstance(v, np.float64):
+                    par_return[k] = float(v)
+                elif isinstance(v, np.bool_):
+                    par_return[k] = bool(v)
+                else:
+                    continue
         # Set json columns to json
         par_return["start_gamma"] = json.loads(par_return["start_gamma"])
         par_return["start_emiss"] = json.loads(par_return["start_emiss"])
