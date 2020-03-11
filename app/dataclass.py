@@ -69,7 +69,6 @@ class SimulationData:
         else:
             return False
 
-
     def save_allocations(self):
         """
         Save the current overview of allocations to disk
