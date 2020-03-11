@@ -23,7 +23,7 @@ class SimulationData:
         """
         # Check if already allocated
         if self.allocations.get(container_id) is not None:
-            par_return = self.scen[self.scen["iteration_id"] == self.allocations[container_id]["iteration_id"]].to_dict(orient="list")
+            par_return = self.scen[self.scen["iteration_id"] == self.allocations[container_id]["iteration_id"]].iloc[0].to_dict()
         else:
             # Get the first row where allocated == False
             params = self.scen[self.scen.allocated == False].iloc[0]
@@ -39,15 +39,16 @@ class SimulationData:
             self.save_allocations()
             # Return values as dict
             par_return = params.to_dict()
-            for k, v in par_return.items():
-                if isinstance(v, np.int64):
-                    par_return[k] = int(v)
-                elif isinstance(v, np.float64):
-                    par_return[k] = float(v)
-                elif isinstance(v, np.bool_):
-                    par_return[k] = bool(v)
-                else:
-                    continue
+        # Make sure that the data is serializable (i.e. not of numpy data types.)
+        for k, v in par_return.items():
+            if isinstance(v, np.int64):
+                par_return[k] = int(v)
+            elif isinstance(v, np.float64):
+                par_return[k] = float(v)
+            elif isinstance(v, np.bool_):
+                par_return[k] = bool(v)
+            else:
+                continue
         # Set json columns to json
         par_return["start_gamma"] = json.loads(par_return["start_gamma"])
         par_return["start_emiss"] = json.loads(par_return["start_emiss"])
