@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI, HTTPException, Header
 from starlette import status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
-from typing import List, Union
+from typing import List, Dict, Union
 import secrets
 
 # Get env variables
@@ -46,21 +46,15 @@ else:
 ###########
 
 # Schema for a single emission MAP estimates
-class Emiss_dep(BaseModel):
+class MAP_value(BaseModel):
     mean: List[Union[float, int]]
-    sd: List[Union[float, int]]
+    SE: List[Union[float, int]]
 
 # Schema for all emission MAP estimates
 class Emiss_map(BaseModel):
-    EEG_mean_beta: Emiss_dep
-    EOG_median_theta: Emiss_dep
-    EOG_min_beta: Emiss_dep
-
-# Schema for gamma_int_bar
-class Gamma_intercept_map(BaseModel):
-    mean: List[Union[float, int]]
-    SE: List[Union[float, int]]
-    # TODO: harmonize with emiss_dep above
+    EEG_mean_beta: MAP_value
+    EOG_median_theta: MAP_value
+    EOG_min_beta: MAP_value
 
 # Schema for credible intervals of emission distributions
 class Emiss_CI(BaseModel):
@@ -81,7 +75,7 @@ class Simulation_res(BaseModel):
     scenario_uid: str
     iteration_uid: str 
     emiss_mu_bar: Emiss_map
-    gamma_int_bar: Gamma_intercept_map
+    gamma_int_bar: MAP_value
     emiss_var_bar: Emiss_map
     emiss_varmu_bar: Emiss_map
     credible_intervals: Credible_intervals
@@ -143,15 +137,7 @@ def save_results(records: Simulation_res, username: str = Depends(auth_container
     Take simulation results and save to disk
     """
     # Get results
-    res = {
-        "container_uid": records.uid,
-        "scenario_uid": records.scenario_uid,
-        "emiss_mu_bar": records.emiss_mu_bar,
-        "gamma_int_bar": records.gamma_int_bar,
-        "emiss_var_bar": records.emiss_var_bar,
-        "emiss_varmu_bar": records.emiss_varmu_bar,
-        "credible_intervals": records.credible_intervals
-    }
+    res = records.dict()
     # Save results
     out_file = os.path.join(RESULTS_OUT, records.iteration_uid + ".json")
     with open(out_file, "w") as outFile:
