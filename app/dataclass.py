@@ -77,6 +77,7 @@ class SimulationData:
         Evaluates whether or not the input record has been completed in the past 24 hours
         """
         if record.get("ts_finished") is None: return False 
+        if record.get("status") is not "completed": return False
         if timediff < datetime.datetime.fromtimestamp(record["ts_finished"]):
             return True
         else:
