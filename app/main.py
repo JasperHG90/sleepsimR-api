@@ -45,16 +45,46 @@ else:
 # Schemas #
 ###########
 
+# Schema for a single emission MAP estimates
+class Emiss_dep(BaseModel):
+    mean: List[Union[float, int]]
+    sd: List[Union[float, int]]
+
+# Schema for all emission MAP estimates
+class Emiss_map(BaseModel):
+    EEG_mean_beta: Emiss_dep
+    EOG_median_theta: Emiss_dep
+    EOG_min_beta: Emiss_dep
+
+# Schema for gamma_int_bar
+class Gamma_intercept_map(BaseModel):
+    mean: List[Union[float, int]]
+    SE: List[Union[float, int]]
+    # TODO: harmonize with emiss_dep above
+
+# Schema for credible intervals of emission distributions
+class Emiss_CI(BaseModel):
+    EEG_mean_beta: List[Union[float, int]]
+    EOG_median_theta: List[Union[float, int]]
+    EOG_min_beta: List[Union[float, int]]
+
+# Schema for credible intervals
+class Credible_intervals(BaseModel):
+    gamma_int_bar: List[Union[float, int]]
+    emiss_mu_bar: Emiss_CI
+    emiss_var_bar: Emiss_CI
+    emiss_varmu_bar: Emiss_CI
+
 # POST request with simulation results
 class Simulation_res(BaseModel):
     uid: str 
     scenario_uid: str
     iteration_uid: str 
-    emiss_mu_bar: List
-    gamma_int_bar: List
-    emiss_var_bar: List
-    emiss_varmu_bar: List
-    credible_intervals: List
+    emiss_mu_bar: Emiss_map
+    gamma_int_bar: Gamma_intercept_map
+    emiss_var_bar: Emiss_map
+    emiss_varmu_bar: Emiss_map
+    credible_intervals: Credible_intervals
 
 class Simulation_err(BaseModel):
     uid: str
