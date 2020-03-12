@@ -2,8 +2,10 @@
     "allocations": {
         "abcd": {
             "iteration_id": "0493f34e6dcb7a4ca87d4623531ebd4f",
-            "status": "working",
-            "ts_request": 1583959562.55551
+            "status": "error",
+            "ts_request": 1584010872.47616,
+            "ts_finished": 1584010908.387771,
+            "msg": "Testing"
         }
     },
     "allocations_inv": {

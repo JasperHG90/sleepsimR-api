@@ -63,11 +63,13 @@ class SimulationData:
         Return the number of processes allocated and finished
         """
         alloc = len(self.allocations)
-        finish = sum([True if rec["status"] == "completed" else False for rec in self.allocations.values()])
+        finish = sum([*map(lambda x: True if x["status"] == "completed" else False, self.allocations.values())])
+        errored = sum([*map(lambda x: True if x["status"] == "error" else False, self.allocations.values())])
         # Compute number of records completed in past day
         timediff = (datetime.datetime.now() - datetime.timedelta(hours=24))
         completed_past_day = sum([*map(lambda x: self.completed_last_day(x, timediff), self.allocations.values())])
-        return {"allocated": alloc - finish, "finished": finish, "finished_past_day": completed_past_day}
+        return {"allocated": alloc - finish - errored, "finished": finish, 
+                "finished_past_day": completed_past_day, "errors": errored}
 
     @staticmethod
     def completed_last_day(record, timediff):
