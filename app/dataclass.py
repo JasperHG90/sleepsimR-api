@@ -109,12 +109,14 @@ class SimulationData:
         del self.allocations[container_id]
         del self.allocations_inv[itid]
 
-    def update_status(self, container_id: str, status = "completed"):
+    def update_status(self, container_id: str, status = "completed", **kwargs):
         """
         Update status for a container
         """
         self.allocations[container_id]["status"] = status
         self.allocations[container_id]["ts_finished"] = datetime.datetime.now().timestamp()
+        if status == "error":
+            self.allocations[container_id]["msg"] = kwargs.get("msg")
         self.save_allocations()
 
     @classmethod
@@ -131,8 +133,12 @@ class SimulationData:
         for k in list(cls_init.allocations.keys()):
             if cls_init.allocations[k]["status"] == "working":
                 cls_init.pop_allocation(k)
-            else:
+            elif cls_init.allocations[k]["status"] == "completed":
                 # If status is completed, then set pandas allocated column to true
+                cls_init.scen.loc[cls_init.scen["iteration_id"] == cls_init.allocations[k]["iteration_id"], "allocated"] = True
+            else:
+                # Error occurred
+                # TODO: depending on type of error, send the iteration back to the pool
                 cls_init.scen.loc[cls_init.scen["iteration_id"] == cls_init.allocations[k]["iteration_id"], "allocated"] = True
         # Save allocations
         cls_init.save_allocations()

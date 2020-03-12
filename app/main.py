@@ -56,6 +56,10 @@ class Simulation_res(BaseModel):
     emiss_varmu_bar: List[List[Union[float, int]]]
     credible_intervals: List[List[Union[float, int]]]
 
+class Simulation_err(BaseModel):
+    uid: str
+    error: str
+
 #################
 # API endpoints #
 #################
@@ -85,7 +89,7 @@ def return_info(username: str = Depends(auth_container)):
     inf = sd.info()
     return inf
 
-# POST request for parameters
+# GET request for parameters
 @app.get("/parameters")
 def get_parameters(uid: str = Header(None), username: str = Depends(auth_container)):
     # Get the id of the container that is simulating this iteration
@@ -126,3 +130,15 @@ def save_results(records: Simulation_res, username: str = Depends(auth_container
     sd.update_status(records.uid, status = "completed")
     # Return termination message
     return {"message":"terminate"}
+
+# POST request for errors
+@app.post("/error")
+def report_error(records: Simulation_err):
+    """
+    Keep track of errors that occurred
+    """
+    # Get uid/error
+    uid = records.uid
+    err = records.error
+    # Update the database
+    sd.update_status(uid, status="error", msg=err)
