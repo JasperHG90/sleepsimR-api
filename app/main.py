@@ -69,6 +69,12 @@ class Credible_intervals(BaseModel):
     emiss_var_bar: Emiss_CI
     emiss_varmu_bar: Emiss_CI
 
+# Schema used for rank-ordered state mean indices
+class Ordering(BaseModel):
+    EEG_mean_beta: List[int]
+    EOG_median_theta: List[int]
+    EOG_min_beta: List[int]
+
 # POST request with simulation results
 class Simulation_res(BaseModel):
     uid: str 
@@ -80,6 +86,7 @@ class Simulation_res(BaseModel):
     emiss_varmu_bar: Emiss_map
     credible_intervals: Credible_intervals
     label_switch: List[Union[float, int]]
+    state_order: Ordering
 
 class Simulation_err(BaseModel):
     uid: str
