@@ -122,6 +122,12 @@ class SimulationData:
             self.allocations[container_id]["msg"] = kwargs.get("msg")
         self.save_allocations()
 
+    def get_active_workers(self):
+        """
+        Get the ID of all workers whose status is 'active'
+        """
+        return [k for k,v in self.allocations.items() if v["status"] == "working"]
+
     @classmethod
     def from_file(cls, path):
         """

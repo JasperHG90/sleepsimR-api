@@ -149,7 +149,7 @@ def save_results(records: Simulation_res, username: str = Depends(auth_container
 
 # POST request for errors
 @app.post("/error")
-def report_error(records: Simulation_err):
+def report_error(records: Simulation_err, username: str = Depends(auth_container)):
     """
     Keep track of errors that occurred
     """
@@ -158,3 +158,11 @@ def report_error(records: Simulation_err):
     err = records.error
     # Update the database
     sd.update_status(uid, status="error", msg=err)
+
+# GET currently allocated IDs
+@app.get("/active_workers")
+def get_workers(username: str = Depends(auth_container)):
+    """
+    Get the IDs of all current active workers
+    """
+    return sd.get_active_workers()
