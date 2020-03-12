@@ -79,6 +79,7 @@ class Simulation_res(BaseModel):
     emiss_var_bar: Emiss_map
     emiss_varmu_bar: Emiss_map
     credible_intervals: Credible_intervals
+    label_switching: List[Union[float, int]]
 
 class Simulation_err(BaseModel):
     uid: str
