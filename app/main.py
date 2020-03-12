@@ -142,7 +142,8 @@ def save_results(records: Simulation_res, username: str = Depends(auth_container
     # Save results
     out_file = os.path.join(RESULTS_OUT, records.iteration_uid + ".json")
     with open(out_file, "w") as outFile:
-        json.dump(res, outFile)
+        json.dump(res, outFile,
+                  indent=4)
     # Update status
     sd.update_status(records.uid, status = "completed")
     # Return termination message
