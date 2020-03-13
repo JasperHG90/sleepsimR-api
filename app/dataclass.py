@@ -25,8 +25,13 @@ class SimulationData:
         if self.allocations.get(container_id) is not None:
             par_return = self.scen[self.scen["iteration_id"] == self.allocations[container_id]["iteration_id"]].iloc[0].to_dict()
         else:
-            # Get the first row where allocated == False
-            params = self.scen[self.scen.allocated == False].iloc[0]
+            # Get the rows where allocated == False
+            params = self.scen[self.scen.allocated == False]
+            # If n rows is 0, then finished
+            if params.shape[0] == 0:
+                return {"message": "simulation finished"}
+            # Get first row
+            params = params.iloc[0]
             # Set allocation to true
             self.scen.loc[self.scen["iteration_id"] == params.iteration_id, "allocated"] = True
             # Save in allocations
@@ -65,11 +70,13 @@ class SimulationData:
         alloc = len(self.allocations)
         finish = sum([*map(lambda x: True if x["status"] == "completed" else False, self.allocations.values())])
         errored = sum([*map(lambda x: True if x["status"] == "error" else False, self.allocations.values())])
+        total = self.scen.shape[0]
         # Compute number of records completed in past day
         timediff = (datetime.datetime.now() - datetime.timedelta(hours=24))
         completed_past_day = sum([*map(lambda x: self.completed_last_day(x, timediff), self.allocations.values())])
-        return {"allocated": alloc - finish - errored, "finished": finish, 
-                "finished_past_day": completed_past_day, "errors": errored}
+        return {"total_iterations": total, "allocated": alloc - finish - errored, 
+                "finished": finish,  "finished_past_day": completed_past_day, 
+                "errors": errored}
 
     @staticmethod
     def completed_last_day(record, timediff):
