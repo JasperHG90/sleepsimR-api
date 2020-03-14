@@ -126,8 +126,14 @@ class SimulationData:
         # Get iteration id
         itid = self.allocations[container_id]["iteration_id"]
         # Pop from allocations and inverse
-        del self.allocations[container_id]
-        del self.allocations_inv[itid]
+        try:
+            del self.allocations[container_id]
+        except KeyError:
+            print("Keyerror. Container id not found ...")
+        try:
+            del self.allocations_inv[itid]
+        except KeyError:
+            print("Keyerror. Iteration ID not found ...")
 
     def update_status(self, container_id: str, status = "completed", **kwargs):
         """
