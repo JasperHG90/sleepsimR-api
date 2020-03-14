@@ -40,8 +40,18 @@ class SimulationData:
                                               "ts_request": datetime.datetime.now().timestamp()}
             # Save in inverse mapping
             self.allocations_inv[params.iteration_id] = container_id
-            # Save allocations to disk
-            self.save_allocations()
+            # This is deeply unsatisfying and bad, bad coding practice.
+            # It may occur that while the program is saving the allocations
+            # another thread changes the allocations while json is encoding
+            # the file. This leads to an http error, which I'd like to avoid.
+            # Therefore, I am happy if it get saved *most* of the time, and
+            # I will disregard this error for now. Perhaps I could move to
+            # a proper database solution?
+            try:
+                # Save allocations to disk
+                self.save_allocations()
+            except RuntimeError:
+                e = None
             # Return values as dict
             par_return = params.to_dict()
         # Make sure that the data is serializable (i.e. not of numpy data types.)
@@ -127,7 +137,12 @@ class SimulationData:
         self.allocations[container_id]["ts_finished"] = datetime.datetime.now().timestamp()
         if status == "error":
             self.allocations[container_id]["msg"] = kwargs.get("msg")
-        self.save_allocations()
+        # See comment above
+        try:
+            # Save allocations to disk
+            self.save_allocations()
+        except RuntimeError:
+            e = None
 
     def get_active_workers(self):
         """
