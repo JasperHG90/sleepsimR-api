@@ -48,6 +48,7 @@ else:
 # Schema for a single emission MAP estimates
 class MAP_value(BaseModel):
     mean: List[Union[float, int]]
+    median: List[Union[float, int]]
     SE: List[Union[float, int]]
 
 # Schema for all emission MAP estimates
