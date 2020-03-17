@@ -81,6 +81,7 @@ class Simulation_res(BaseModel):
     uid: str 
     scenario_uid: str
     iteration_uid: str 
+    PD_subj: List[MAP_value]
     emiss_mu_bar: Emiss_map
     gamma_int_bar: MAP_value
     emiss_var_bar: Emiss_map
