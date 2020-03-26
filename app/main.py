@@ -83,7 +83,7 @@ class Simulation_res(BaseModel):
     iteration_uid: str 
     PD_subj: List[MAP_value]
     emiss_mu_bar: Emiss_map
-    gamma_int_bar: MAP_value
+    gamma_prob_bar: MAP_value
     emiss_var_bar: Emiss_map
     emiss_varmu_bar: Emiss_map
     credible_intervals: Credible_intervals
