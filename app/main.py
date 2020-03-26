@@ -65,7 +65,7 @@ class Emiss_CI(BaseModel):
 
 # Schema for credible intervals
 class Credible_intervals(BaseModel):
-    gamma_int_bar: List[Union[float, int]]
+    gamma_prob_bar: List[Union[float, int]]
     emiss_mu_bar: Emiss_CI
     emiss_var_bar: Emiss_CI
     emiss_varmu_bar: Emiss_CI
